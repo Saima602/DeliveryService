@@ -13,7 +13,7 @@ public class PackageDetails {
 	private Double pkgWeigthInKg;
 	private Double distanceInKm;
 	private String offerCode;
-	public boolean scheduled;
+	 
 	public String getPkgId() {
 		return pkgId;
 	}
