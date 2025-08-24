@@ -79,7 +79,8 @@ public class CalculateDeliveryTime implements ICalculateDeliveryTime{
 	}
 
 	private boolean maxTimeIsShortest(Map<Integer, Double> vehicleMaxTimeMap, int vehicle) {
-		if(vehicleMaxTimeMap== null || vehicleMaxTimeMap.isEmpty() || vehicleMaxTimeMap.get(vehicle) ==null) {
+		if(vehicleMaxTimeMap== null || vehicleMaxTimeMap.isEmpty() ||  vehicleMaxTimeMap.get(vehicle) ==null
+				||  vehicleMaxTimeMap.size() ==1) {
 			return true;
 		}
 		

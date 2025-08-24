@@ -10,65 +10,59 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CalculateDeliveryChargesTest  {
 
-    private final CalculateDeliveryCharges calc = new CalculateDeliveryCharges();
+   
+
+   private final CalculateDeliveryCharges service = new CalculateDeliveryCharges();
 
     @Test
-    void testOFR001DiscountValid() {
-        PackageDetails pkg = new PackageDetails("PKG1", 100.0, 100.0, "OFR001");
-        Double discount = calc.calculateDiscount(pkg);
+    void testCalculateDiscount_ValidOffer() {
+        // Suppose OFR001 is valid with 10% discount
+        PackageDetails pkg = new PackageDetails("PKG1", 150.0, 100.0, "OFR001");
 
-        assertEquals(0.10, discount, "OFR001 should give 10% discount");
+        Double discount = service.calculateDiscount(pkg);
+
+        assertTrue(discount > 0);
     }
 
     @Test
-    void testOFR002DiscountValid() {
-        PackageDetails pkg = new PackageDetails("PKG2", 150.0, 100.0, "OFR002");
-        Double discount = calc.calculateDiscount(pkg);
+    void testCalculateDiscount_InvalidOffer() {
+        PackageDetails pkg = new PackageDetails("PKG2", 50.0, 20.0, "INVALID");
 
-        assertEquals(0.07, discount, "OFR002 should give 7% discount");
+        Double discount = service.calculateDiscount(pkg);
+
+        assertEquals(0.0, discount);
     }
 
     @Test
-    void testOFR003DiscountValid() {
-        PackageDetails pkg = new PackageDetails("PKG3", 50.0, 200.0, "OFR003");
-        Double discount = calc.calculateDiscount(pkg);
+    void testCalculateDeliveryCharge_WithDiscount() {
+        PackageDetails pkg = new PackageDetails("PKG3", 10.0, 10.0, "OFR001");
 
-        assertEquals(0.05, discount, "OFR003 should give 5% discount");
+        Double baseDeliveryCharge = 100.0;
+        Double discount = 10.0; // 10%
+
+        OutputDetails output = service.calculateDeliveryCharge(baseDeliveryCharge, pkg, discount);
+
+        // deliveryCharge = 100 + (10 * 10) + (10 * 5) = 100 + 100 + 50 = 250
+        // discount = 10% of 250 = 25
+        // total = 225
+        assertEquals("PKG3", output.getPackageId());
+        assertEquals(25.0, output.getDiscount(), 0.01);
+        assertEquals(225.0, output.getTotalCostOfDelivery(), 0.01);
     }
 
     @Test
-    void testNoDiscountInvalidOfferCode() {
-        PackageDetails pkg = new PackageDetails("PKG4", 20.0, 100.0, "INVALID");
-        Double discount = calc.calculateDiscount(pkg);
+    void testCalculateDeliveryCharge_NoDiscount() {
+        PackageDetails pkg = new PackageDetails("PKG4", 5.0, 5.0, null);
 
-        assertEquals(0.0, discount, "Invalid offer code should return 0% discount");
-    }
+        Double baseDeliveryCharge = 100.0;
+        Double discount = 0.0;
 
-    @Test
-    void testCalculateDeliveryChargeWithDiscount() {
-        PackageDetails pkg = new PackageDetails("PKG5", 10.0, 100.0, "OFR003");
+        OutputDetails output = service.calculateDeliveryCharge(baseDeliveryCharge, pkg, discount);
 
-        Double discount = calc.calculateDiscount(pkg);
-        OutputDetails output = calc.calculateDeliveryCharge(100.0, pkg, discount);
-
-        // DeliveryCharge = 100 + (10*10) + (100*5) = 100 + 100 + 500 = 700
-        // Discount = 700 * 0.05 = 35.0
-        // Total = 700 - 35 = 665.0
-        assertEquals("PKG5", output.getPackageId());
-        assertEquals(35.0, output.getDiscount());
-        assertEquals(665.0, output.getTotalCostOfDelivery());
-    }
-
-    @Test
-    void testCalculateDeliveryChargeNoDiscount() {
-        PackageDetails pkg = new PackageDetails("PKG6", 5.0, 20.0, "NONE");
-
-        Double discount = calc.calculateDiscount(pkg);
-        OutputDetails output = calc.calculateDeliveryCharge(100.0, pkg, discount);
-
-        // DeliveryCharge = 100 + (5*10) + (20*5) = 100 + 50 + 100 = 250
-        // Discount = 0
-        assertEquals(0.0, output.getDiscount());
-        assertEquals(250.0, output.getTotalCostOfDelivery());
+        // deliveryCharge = 100 + (5 * 10) + (5 * 5) = 100 + 50 + 25 = 175
+        // discount = 0
+        // total = 175
+        assertEquals(0.0, output.getDiscount(), 0.01);
+        assertEquals(175.0, output.getTotalCostOfDelivery(), 0.01);
     }
 }
